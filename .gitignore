@@ -128,5 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Directory for testing ideas
+# Directory for testing ideas and data
 .experiments
+.csv
+
+# VS code
+.vscode
