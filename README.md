@@ -2,7 +2,7 @@
 General purpose, Python based datalogger software for Dyacon's MDL-700.
 
 ### Dependencies
-pyMDL uses DataBear (https://github/chrisrycx/databear) to perform general datalogger tasks like scheduling measurement and storage. Users may also require MinimalModbus for communicating with a Modbus device.
+pyMDL uses DataBear (https://github.com/chrisrycx/databear) to perform general datalogger tasks like scheduling measurement and storage. Users may also require MinimalModbus for communicating with a Modbus device.
 * pip install databear
 * pip install minimalmodbus
 
