@@ -4,6 +4,7 @@ MDL-700 Datalogger
 - Uses DataBear for logger functionality (pip install databear)
 - Configures MDL serial ports using configuration YAML
 - Optional: Define new measurement methods
+
 '''
 
 import databear.logger
@@ -35,7 +36,7 @@ def portconfig(portnum,RSmode,duplex,resistors,bias):
     bias - 1 or 0
     '''
     RSmodes = {'RS485':1,'RS232':0}
-    duplexval = {'full':1,'half':0}
+    duplexval = {'full':0,'half':1}
     gpiopins = [0,1,2,3]
 
     if (portnum >= 0) and (portnum <= 3):
