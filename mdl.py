@@ -8,6 +8,7 @@ MDL-700 Datalogger
 '''
 
 import databear.logger
+import databear.dyaconsensors
 import sys
 import yaml
 import subprocess #For GPIO config
@@ -68,18 +69,18 @@ mdlportnums = {'SM1':0,'SM2':1,'SM3':2,
                'SM4':3,'SM5':4,'SM6':5,
                'SM7':6,'SM8':7}
 for sensor in sensors:
-    measurements = sensor['measurements']
-    for measurement in measurements:
-        #Get serial settings from dictionary
-        port = measurement['port']
-        serialtype = measurement['serial']
-        duplex = measurement['duplex']
+    sensorsettings = sensor['settings']
 
-        #Configure GPIO - always assumes resistors and bias set
-        portconfig(mdlportnums[port],serialtype,duplex,1,1)
+    #Get serial settings from dictionary
+    port = sensorsettings['port']
+    serialtype = sensorsettings['serial']
+    duplex = sensorsettings['duplex']
 
-        #Change port for DataBear modbus
-        measurement['port'] = mdlports[port]
+    #Configure GPIO - always assumes resistors and bias set
+    portconfig(mdlportnums[port],serialtype,duplex,1,1)
+
+    #Change port for DataBear modbus
+    sensor['settings']['port'] = mdlports[port]
 
 #Create a logger
 datalogger = databear.logger.DataLogger(config)

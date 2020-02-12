@@ -1,64 +1,38 @@
 #An example configuration file for the MDL-700
-#Note: Serial settings associated with termination resistors and bias are hardcoded high at this point.
 
 #Change key values to change settings. Also add or remove groups of key/value pairs as needed.
 
-#Define datalogger settings
-#Settings key must have at least one set of measurement settings
+#Define datalogger settings - Controls how measurements are stored
+#Settings key must have at least one set of storage settings
 datalogger:
   name: mylogger           #Logger name will be associated with output csv
   settings:
-    - measurement: airT  #Must match name and sensor defined below
-      sensor: TPH    
-      sample: 10           #Sample frequency in seconds. Can be < 1
+    - sensor: TPH
+      store: airT   
+      frequency: 10        #Sample frequency in seconds. Can be < 1
       process: None        #Not yet implemented. Leave as None
-      store: 60            #Data storage frequency in seconds
-    - measurement: humidity
-      sensor: TPH
-      sample: 15
+    - sensor: RMY
+      store: bp
+      frequency: 20
       process: None
-      store: 30
-    - measurement: bp
-      sensor: RMY
-      sample: 10
-      process: None
-      store: 60
 
-#Must have at least one set of measurement settings per sensor.
+#Define sensors
+#Must have at least one set of settings per sensor.
 #Key value pairs in measurements vary by method
 sensors: 
   - name: TPH
-    serialnumber: '6110'
-    measurements:     #name and method are mandatory key value pairs
-    - name: airT
-      method: modbus
-      address: 4      #Everything below method is a key/value specific to the method
-      port: SM3       #SM = "serial module" with port corresponding to physical port number
-      serial: RS485   #Serial and duplex settings specific to pyMDL
-      duplex: half
-      register: 210
-      regtype: float
-      timeout: 0.3
-    - name: humidity
-      method: modbus
-      address: 4
-      port: SM3
-      serial: RS485
-      duplex: half
-      register: 212
-      regtype: float
-      timeout: 0.3
+    sensortype: modbus
+    settings:
+      serialnumber: '6110'
+      measurement: 5  #Measurement frequency of the sensor
+      address: 4      
+      port: SM3       #pyMDL specific - "serial module" port number (1-8)
   - name: RMY
-    serialnumber: 9999
-    measurements:
-    - name: bp
-      method: stream
+    sensortype: streaming
+    settings:
+      serialnumber: 9999
+      measurement: 5
       port: SM4
-      baud: 9600
-      serial: RS232
-      duplex: full
-      timeout: 0
-      dataRE: \d\d\d\d.\d\d
       
     
 
