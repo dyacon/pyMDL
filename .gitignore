@@ -130,7 +130,7 @@ dmypy.json
 
 # Directory for testing ideas and data
 .experiments
-.csv
+*.csv
 
 # VS code
 .vscode

@@ -8,12 +8,11 @@ MDL-700 Datalogger
 '''
 
 #Import databear components
-from databear.sensors import dyaconTPH1,simStream 
+from databear.sensors import dyaconTPH1,dyaconWSD2,simStream 
 from databear import logger,sensorfactory 
 
 #Import MDL modules
 import mdl_functions
-from sensors import dyaconWSD2
 
 #Import other libraries
 import sys
