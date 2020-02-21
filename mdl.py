@@ -19,7 +19,7 @@ import sys
 import yaml
 
 #Register sensors with sensor factory
-sensorfactory.factory.register_sensor('simStream', simStream.StreamSensor)
+sensorfactory.factory.register_sensor('simStream', simStream.SimStream)
 sensorfactory.factory.register_sensor('dyaconWSD2', dyaconWSD2.dyaconWSD2)
 sensorfactory.factory.register_sensor('dyaconTPH1', dyaconTPH1.dyaconTPH)
 
