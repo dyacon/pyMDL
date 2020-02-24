@@ -1,27 +1,28 @@
 '''
 MDL-700 Datalogger
+Use this script as a starting point for developing
+a project specific script.
 
-- Uses DataBear for logger functionality (pip install databear)
 - Configures MDL serial ports using configuration YAML
 - Optional: Define new measurement methods
 
 '''
 
 #Import databear components
-from databear.sensors import dyaconTPH1,dyaconWSD2,simStream 
+# Example: from databear.sensors import dyaconTPH1,dyaconWSD2,simStream 
 from databear import logger,sensorfactory 
 
-#Import MDL modules
+#Import MDL functions
 import mdl_functions
 
 #Import other libraries
 import sys
 import yaml
 
-#Register sensors with sensor factory
-sensorfactory.factory.register_sensor('simStream', simStream.SimStream)
-sensorfactory.factory.register_sensor('dyaconWSD2', dyaconWSD2.dyaconWSD2)
-sensorfactory.factory.register_sensor('dyaconTPH1', dyaconTPH1.dyaconTPH)
+#Register project sensors with sensor factory
+#   register_sensor(<sensortype>,<sensorclass>)
+#The sensortype string should match the sensortype specified in the yaml
+#Example: sensorfactory.factory.register_sensor('simStream', simStream.SimStream)
 
 #Read in path to YAML from commandline arg
 if len(sys.argv) < 2:
