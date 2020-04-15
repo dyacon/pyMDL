@@ -14,10 +14,10 @@ print(im.format, im.size, im.mode)
 im = im.transpose(Image.FLIP_LEFT_RIGHT)
 
 #Try drawing
-fnt = ImageFont.load_default()
+fnt = ImageFont.truetype('arial.ttf',15)
 d = ImageDraw.Draw(im)
 d.ellipse([(2,2),(100,30)],fill='green',width=6)
-d.text((20,20),'Hello World',font=fnt, fill=(255,255,255,128))
+d.text((20,20),'Hello World',font=fnt)
 
 
 
