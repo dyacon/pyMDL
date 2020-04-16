@@ -4,10 +4,14 @@ Testing pillow text
 
 from PIL import Image, ImageDraw, ImageFont
 
-im = Image.new('1',(500,500),color=255)
+im = Image.new('1',(128,64),color=0)
 
-fnt = ImageFont.truetype('arial.ttf',15)
+fnt = ImageFont.truetype(
+    '/usr/share/fonts/liberation/LiberationMono-Regular.ttf',15)
 d = ImageDraw.Draw(im)
-d.text((20,20),'Hello World',font=fnt)
+d.text((20,20),'Hello World',font=fnt,fill=255)
 
-im.show()
+imbytes = im.tobytes()
+
+with open('/dev/fb0','wb') as f:
+    f.write(imbytes)
