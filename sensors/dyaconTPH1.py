@@ -27,9 +27,9 @@ class tphdisplay:
 
     def displaydata(self,dt,airT,rh,bp):
         dispstr = ('Dyacon TPH-1\n'
-                   'Air T:  {0:%H:%M:%S} {1:.2f}\n'
-                   'RH:     {0:%H:%M:%S} {2:.1f}\n'
-                   'BP:     {0:%H:%M:%S} {3:.1f}\n'.format(dt,airT,rh,bp)
+                   'T:  {0:%H:%M:%S} {1:.2f}\n'
+                   'RH: {0:%H:%M:%S} {2:.1f}\n'
+                   'BP: {0:%H:%M:%S} {3:.1f}\n'.format(dt,airT,rh,bp)
                    )
         
         #Clear display
