@@ -1,0 +1,44 @@
+#An example configuration file for the MDL-700
+#Sensors TPH-1 and WSD-1
+
+#Change key values to change settings. Also add or remove groups of key/value pairs as needed.
+
+#Define datalogger settings - Controls how measurements are stored
+#Settings key must have at least one set of storage settings
+datalogger:
+  name: mylogger           #Logger name will be associated with output csv
+  settings:
+    - sensor: TPH          #Must match a sensor name below
+      store: airT          #This name must match measurement name in sensor class  
+      frequency: 60        #Storage frequency in seconds
+      process: average        #Process: dump, sample, average, max, min
+    - sensor: TPH
+      store: rh
+      frequency: 30
+      process: sample
+    - sensor: WSD
+      store: WindSpeed
+      frequency: 120
+      process: max
+
+#Define sensors
+#Must have at least one set of settings per sensor.
+#Key value pairs in measurements vary by method
+sensors: 
+  - name: TPH
+    sensortype: dyaconTPH1   #Must match name in sensor registry
+    settings:
+      serialnumber: '6110'
+      measurement: 10         #Measurement of the sensor in seconds
+      address: 2      
+      port: SM3           #pyMDL specific - "serial module" port number (1-8)
+  - name: WSD
+    sensortype: dyaconWSD1
+    settings:
+      serialnumber: '1905'
+      measurement: 5
+      address: 1
+      port: SM4
+      
+    
+
