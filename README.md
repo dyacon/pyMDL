@@ -7,8 +7,7 @@ General purpose, Python based datalogger software for Dyacon's MDL-700.
 
 ### Getting Started
 Create a project folder on the MDL that will contain the various scripts
-and configuration settings. It is recommended a virtual environment be used
-for managing Python dependencies on the MDL.
+and configuration settings.
 
 pyMDL uses DataBear (https://github.com/chrisrycx/databear) to perform general datalogger tasks like scheduling measurement and storage. 
 * `pip install databear`
@@ -20,7 +19,7 @@ require the "minimalmodbus" library.
 
 PyMDL is NOT installed by PIP at this point. Instead clone the pyMDL
 repository. Install pyMDL locally using (inside repository):
-* 'pip install -e .'
+* `pip install -e .`
 
 ### Configuration
 1. Create a YAML configuration file following `examples/template/template.yaml`. 
