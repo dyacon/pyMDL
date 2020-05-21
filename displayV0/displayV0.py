@@ -1,11 +1,14 @@
 '''
-Display test with buttons
-Use on MDL
+Display V0
+Displays two pages and switches between them with buttons
+-- Use on MDL
 '''
 
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 import struct
+import selectors
+import time
 
 #Run parameters
 sensorname = 'TPH-1'
@@ -98,23 +101,37 @@ Main Loop
 4. Break loop if Ctl-C
 '''
 page = 'system'
-devf = open('/dev/input/event0','rb')
+btnObj = open('/dev/input/event0','rb')
 btntype = {28:'Select',1:'Cancel',103:'Up',108:'Down'}
 
-while True:
-    try:
-        # Generate image
-        if page == 'system':
-            imbytes = displaySys()
-        elif page == 'data':
-            imbytes = displayData(0,0,0,0)
-        
-        with open('/dev/fb0','wb') as f:
-            f.write(imbytes)
+#Create a selector object and register button
+sel = selectors.DefaultSelector()
+sel.register(btnObj,selectors.EVENT_READ)
 
+while True:
+
+    # Generate image
+    if page == 'system':
+        imbytes = displaySys()
+    elif page == 'data':
+        imbytes = displayData(0,0,0,0)
+    
+    with open('/dev/fb0','wb') as f:
+        f.write(imbytes)
+
+    #Check for input
+    event = sel.select(timeout=0)
+    if event:
+        print('Event Detected')
+        print(event)
+        
         #Read in button press
-        data = devf.read(16)
+        data = btnObj.read(16)
         button = struct.unpack('2IHHI',data)
+
+        #Read remaining content from buffer
+        #SYN followed by button release followed by SYN
+        data = btnObj.read(48)
 
         #Interpret button press
         if (button[3] in [28,1,103,108]) and (button[4]==0):
@@ -124,10 +141,13 @@ while True:
                 page = 'data'
             else:
                 pass
+    
+    #Sleep 0.5s because there is nothing to update
+    time.sleep(0.5)
 
-    #Break if Ctl-C
-    except KeyboardInterrupt:
-        break
+    
+
+    
 
 
 
