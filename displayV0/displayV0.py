@@ -128,22 +128,25 @@ while True:
         #Read in button press
         data = btnObj.read(16)
         button = struct.unpack('2IHHI',data)
+        print(button)
 
         #Read remaining content from buffer
         #SYN followed by button release followed by SYN
-        data = btnObj.read(48)
+        #data = btnObj.read(48)
 
         #Interpret button press
         if (button[3] in [28,1,103,108]) and (button[4]==0):
             if btntype[button[3]]=='Up':
+                print('Up pressed')
                 page = 'system'
             elif btntype[button[3]]=='Down':
+                print('Down pressed')
                 page = 'data'
             else:
                 pass
     
     #Sleep 0.5s because there is nothing to update
-    time.sleep(0.5)
+    #time.sleep(0.5)
 
     
 
