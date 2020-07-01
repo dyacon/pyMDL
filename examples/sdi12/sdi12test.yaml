@@ -21,7 +21,7 @@ sensors:
     settings:
       serialnumber: '1'
       measurement: 10  
-      address: 0      
+      address: '0'      
       port: SM7
     
 
