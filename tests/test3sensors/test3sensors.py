@@ -46,7 +46,7 @@ datalogger = logger.DataLogger(config)
 #Configure GPIO
 for sensor in datalogger.sensors.values():
     #Only configure for sensors with port present
-    if sensor.port is not 'None':
+    if sensor.port:
         #Get serial settings from sensor
         port = sensor.port
         rs = sensor.rs
