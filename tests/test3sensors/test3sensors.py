@@ -45,14 +45,16 @@ datalogger = logger.DataLogger(config)
 
 #Configure GPIO
 for sensor in datalogger.sensors.values():
-    #Get serial settings from sensor
-    port = sensor.port
-    rs = sensor.rs
-    duplex = sensor.duplex
-    resistors = sensor.resistors
-    bias = sensor.bias
-    #Configure port
-    mdl_functions.gpioconfig(port,rs,duplex,resistors,bias)
+    #Only configure for sensors with port present
+    if sensor.port is not 'None':
+        #Get serial settings from sensor
+        port = sensor.port
+        rs = sensor.rs
+        duplex = sensor.duplex
+        resistors = sensor.resistors
+        bias = sensor.bias
+        #Configure port
+        mdl_functions.gpioconfig(port,rs,duplex,resistors,bias)
 
 #Run logger
 datalogger.run()

@@ -61,6 +61,7 @@ sensors:
     settings:     #Serial number and measurement are mandatory
       serialnumber: 'X'
       measurement: 20   #MEASUREMENT interval
+      port: None  #No port
    
    
 
