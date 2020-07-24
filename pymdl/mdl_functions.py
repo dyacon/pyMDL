@@ -53,7 +53,7 @@ def configUpdate(config):
     #Constants
     mdlports = {'SM1':'/dev/ttyMAX0','SM2':'/dev/ttyMAX1','SM3':'/dev/ttyMAX2',
                 'SM4':'/dev/ttyMAX3','SM5':'/dev/ttyMAX4','SM6':'/dev/ttyMAX5',
-                'SM7':'/dev/ttyMAX6','SM8':'/dev/ttyMAX7'}
+                'SM7':'/dev/ttyMAX6','SM8':'/dev/ttyMAX7','None':'None'}
    
 
     #Change port on each sensor
