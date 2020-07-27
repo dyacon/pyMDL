@@ -13,6 +13,7 @@ Algorithm:
 '''
 import serial
 import subprocess
+import time
 
 #Configure all GPIO
 #Function for serial port configuration using GPIO
@@ -92,6 +93,9 @@ for port in smports:
     msg = 'hello from {}'.format(port)
     sbytes = smconns[port].write(msg.encode('utf-8'))
     print('{} sent {} bytes'.format(port,sbytes))
+
+#Wait a bit for message transfer
+time.sleep(1)
 
 #Read in and verify correct
 for port in smports:
