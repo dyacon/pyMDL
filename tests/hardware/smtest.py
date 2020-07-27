@@ -12,6 +12,7 @@ Algorithm:
 
 '''
 import serial
+import subprocess
 
 #Configure all GPIO
 #Function for serial port configuration using GPIO
@@ -57,8 +58,9 @@ def gpioconfig(port,RSmode,duplex,resistors,bias):
 
 #smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
 smports = ['SM2','SM7']
+portnames = {'SM2':'/dev/ttyMAX1','SM7':'/dev/ttyMAX6'}
 for port in smports:
-    gpioconfig(port,'RS485',0,0,0)
+    gpioconfig(portnames[port],'RS485','half',0,0)
 
 #Create a connection on all ports
 '''
@@ -73,12 +75,12 @@ portnames = [
     '/dev/ttyMAX7',
 ]
 '''
-portnames = {'SM2':'/dev/ttyMAX1','SM7':'/dev/ttyMAX6'}
+
 smconns = {}
 #Set up all port connections
 for port in smports:
     comm = serial.Serial(
-        port,
+        portnames[port],
         19200,
         timeout=0
     )
@@ -88,11 +90,13 @@ for port in smports:
 #Need to send from all before checking recieve on all
 for port in smports:
     msg = 'hello from {}'.format(port)
-    smports[port].write(msg.encode('utf-8'))
+    sbytes = smconns[port].write(msg.encode('utf-8'))
+    print('{} sent {} bytes'.format(port,sbytes))
 
 #Read in and verify correct
 for port in smports:
     dbytes = smconns[port].in_waiting
+    print('{} in waiting'.format(dbytes))
     rmsg = smconns[port].read(dbytes).decode('utf-8')
     print('Port: {} received message: {}'.format(port,rmsg))
 
