@@ -55,11 +55,13 @@ def gpioconfig(port,RSmode,duplex,resistors,bias):
     print(gpiocmd)
     subprocess.run([gpiocmd],shell=True)
 
-smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
+#smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
+smports = ['SM2','SM7']
 for port in smports:
-    gpioconfig(port,'RS485',0,0)
+    gpioconfig(port,'RS485',0,0,0)
 
 #Create a connection on all ports
+'''
 portnames = [
     '/dev/ttyMAX0',
     '/dev/ttyMAX1',
@@ -70,20 +72,29 @@ portnames = [
     '/dev/ttyMAX6',
     '/dev/ttyMAX7',
 ]
-smconns = []
-for port in portnames:
-    smconns.append(serial.serial(port,...))
+'''
+portnames = {'SM2':'/dev/ttyMAX1','SM7':'/dev/ttyMAX6'}
+smconns = {}
+#Set up all port connections
+for port in smports:
+    comm = serial.Serial(
+        port,
+        19200,
+        timeout=0
+    )
+    smconns[port] = comm
 
 #Send and recieve on all ports
 #Need to send from all before checking recieve on all
-for port in portnames:
-    serial.send('XXX')
+for port in smports:
+    msg = 'hello from {}'.format(port)
+    smports[port].write(msg.encode('utf-8'))
 
 #Read in and verify correct
-for port in portnames:
-    serial.receive('XXX')
-    if correctdata:
-        print('port sm... = pass')
+for port in smports:
+    dbytes = smconns[port].in_waiting
+    rmsg = smconns[port].read(dbytes).decode('utf-8')
+    print('Port: {} received message: {}'.format(port,rmsg))
 
 
 
