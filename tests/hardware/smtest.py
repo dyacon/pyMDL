@@ -57,26 +57,23 @@ def gpioconfig(port,RSmode,duplex,resistors,bias):
     print(gpiocmd)
     subprocess.run([gpiocmd],shell=True)
 
-#smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
-smports = ['SM2','SM7']
-portnames = {'SM2':'/dev/ttyMAX1','SM7':'/dev/ttyMAX6'}
+smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
+#smports = ['SM2','SM7']
+#portnames = {'SM2':'/dev/ttyMAX1','SM7':'/dev/ttyMAX6'}
+portnames = {
+    'SM1':'/dev/ttyMAX0',
+    'SM2':'/dev/ttyMAX1',
+    'SM3':'/dev/ttyMAX2',
+    'SM4':'/dev/ttyMAX3',
+    'SM5':'/dev/ttyMAX4',
+    'SM6':'/dev/ttyMAX5',
+    'SM7':'/dev/ttyMAX6',
+    'SM8':'/dev/ttyMAX7',
+}
 for port in smports:
     gpioconfig(portnames[port],'RS485','half',0,0)
 
 #Create a connection on all ports
-'''
-portnames = [
-    '/dev/ttyMAX0',
-    '/dev/ttyMAX1',
-    '/dev/ttyMAX2',
-    '/dev/ttyMAX3',
-    '/dev/ttyMAX4',
-    '/dev/ttyMAX5',
-    '/dev/ttyMAX6',
-    '/dev/ttyMAX7',
-]
-'''
-
 smconns = {}
 #Set up all port connections
 for port in smports:
