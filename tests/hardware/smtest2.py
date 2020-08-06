@@ -60,7 +60,7 @@ def gpioconfig(port,RSmode,duplex,resistors,bias):
 
 #smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
 #smports = ['SM2','SM7']
-smports = ['SM1','SM4','SM8']
+smports = ['SM1','SM4','SM7']
 #portnames = {'SM2':'/dev/ttyMAX1','SM7':'/dev/ttyMAX6'}
 portnames = {
     'SM1':'/dev/ttyMAX0',
@@ -84,6 +84,8 @@ for port in smports:
         19200,
         timeout=0
     )
+    comm.reset_input_buffer()
+    comm.reset_output_buffer()
     smconns[port] = comm
 
 def sendmsg(port):
@@ -102,11 +104,18 @@ def readmsg(port):
     rmsg = smconns[port].read(dbytes).decode('utf-8')
     print('Port: {} received message: {}'.format(port,rmsg))
 
-#Testing
+#Testing - Send to two ports
 sendmsg('SM1')
 time.sleep(1)
 readmsg('SM4')
-readmsg('SM8')
+readmsg('SM7')
+
+#Testing - Receive back on ports
+sendmsg('SM4')
+time.sleep(0.5)
+sendmsg('SM7')
+time.sleep(1)
+readmsg('SM1')
 
 
 
