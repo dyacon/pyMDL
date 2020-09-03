@@ -1,7 +1,8 @@
 '''
 Testing Serial Module Ports
+Version 2 - Full duplex to multiple ports
 Setup:
-Create "loopbacks". Connect ports 1-4 to 5-8 using RS485
+Create "loopbacks".
 
 Algorithm:
 - import modules: serial
@@ -57,8 +58,9 @@ def gpioconfig(port,RSmode,duplex,resistors,bias):
     print(gpiocmd)
     subprocess.run([gpiocmd],shell=True)
 
-smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
+#smports = ['SM1','SM2','SM3','SM4','SM5','SM6','SM7','SM8']
 #smports = ['SM2','SM7']
+smports = ['SM1','SM4','SM7']
 #portnames = {'SM2':'/dev/ttyMAX1','SM7':'/dev/ttyMAX6'}
 portnames = {
     'SM1':'/dev/ttyMAX0',
@@ -71,7 +73,7 @@ portnames = {
     'SM8':'/dev/ttyMAX7',
 }
 for port in smports:
-    gpioconfig(portnames[port],'RS485','half',0,0)
+    gpioconfig(portnames[port],'RS485','full',0,0)
 
 #Create a connection on all ports
 smconns = {}
@@ -82,24 +84,39 @@ for port in smports:
         19200,
         timeout=0
     )
+    comm.reset_input_buffer()
+    comm.reset_output_buffer()
     smconns[port] = comm
 
-#Send and recieve on all ports
-#Need to send from all before checking recieve on all
-for port in smports:
+def sendmsg(port):
+    '''
+    Send hello message from port
+    '''
     msg = 'hello from {}'.format(port)
     sbytes = smconns[port].write(msg.encode('utf-8'))
     print('{} sent {} bytes'.format(port,sbytes))
 
-#Wait a bit for message transfer
-time.sleep(1)
-
-#Read in and verify correct
-for port in smports:
+def readmsg(port):
+    '''
+    Receive a message on a port
+    '''
     dbytes = smconns[port].in_waiting
-    print('{} in waiting'.format(dbytes))
     rmsg = smconns[port].read(dbytes).decode('utf-8')
     print('Port: {} received message: {}'.format(port,rmsg))
+
+#Testing - Send to two ports
+sendmsg('SM1')
+time.sleep(1)
+readmsg('SM4')
+readmsg('SM7')
+
+#Testing - Receive back on ports
+sendmsg('SM4')
+time.sleep(0.5)
+sendmsg('SM7')
+time.sleep(1)
+readmsg('SM1')
+
 
 
 
