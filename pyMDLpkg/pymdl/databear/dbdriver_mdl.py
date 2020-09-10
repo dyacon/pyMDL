@@ -1,6 +1,5 @@
 '''
-MDL Port Configuration
-
+A DataBear driver for the MDL
 '''
 import subprocess
 
@@ -45,25 +44,29 @@ def gpioconfig(port,RSmode,duplex,resistors,bias):
     print(gpiocmd)
     subprocess.run([gpiocmd],shell=True)
 
-def configUpdate(config):
-    '''
-    Update config data structure to match MDL
-    - config - Loaded YAML
-    '''
-    #Constants
-    mdlports = {'SM1':'/dev/ttyMAX0','SM2':'/dev/ttyMAX1','SM3':'/dev/ttyMAX2',
-                'SM4':'/dev/ttyMAX3','SM5':'/dev/ttyMAX4','SM6':'/dev/ttyMAX5',
-                'SM7':'/dev/ttyMAX6','SM8':'/dev/ttyMAX7','None':'None'}
-   
+class dbdriver:
+    def __init__(self):
+        '''
+        Create a new driver instance
+        Could load a config file here...
+        '''
+        #Map DataBear ports to hardware ports
+        self.ports = {
+            'port1':'/dev/ttyMAX0',
+            'port2':'/dev/ttyMAX1',
+            'port3':'/dev/ttyMAX2',
+            'port4':'/dev/ttyMAX3',
+            'port5':'/dev/ttyMAX4',
+            'port6':'/dev/ttyMAX5',
+            'port7':'/dev/ttyMAX6',
+            'port8':'/dev/ttyMAX7'
+        }
+    def connect(self,databearport):
+        '''
+        Configure hardware port and return name
+        '''
+        mdlport = self.ports[databearport]
+        gpioconfig(mdlport,'RS485','half',1,1)
+        #Wait for configuration?
+        return mdlport
 
-    #Change port on each sensor
-    sensors = config['sensors']
-    for sensor in sensors:
-        port = sensor['settings']['port']
-
-        #Change port for DataBear modbus
-        sensor['settings']['port'] = mdlports[port]
-    
-    return config
-
-        

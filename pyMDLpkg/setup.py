@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name="pymdl",
-    version="0.2.2",
+    version="0.3",
     author="Chris Cox",
     author_email="chrisrycx@gmail.com",
     description="Python code for Dyacon MDL-700",
