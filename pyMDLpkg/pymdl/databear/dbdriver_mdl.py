@@ -61,12 +61,18 @@ class dbdriver:
             'port7':'/dev/ttyMAX6',
             'port8':'/dev/ttyMAX7'
         }
-    def connect(self,databearport):
+    def connect(self,databearport,sensor_settings):
         '''
         Configure hardware port and return name
         '''
         mdlport = self.ports[databearport]
-        gpioconfig(mdlport,'RS485','half',1,1)
+        gpioconfig(
+            mdlport,
+            sensor_settings['serial'],
+            sensor_settings['duplex'],
+            sensor_settings['resistance'],
+            sensor_settings['bias'])
+            
         #Wait for configuration?
         return mdlport
 
