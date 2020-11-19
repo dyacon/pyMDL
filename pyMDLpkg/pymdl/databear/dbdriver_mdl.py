@@ -70,9 +70,9 @@ class dbdriver:
             mdlport,
             sensor_settings['serial'],
             sensor_settings['duplex'],
-            sensor_settings['resistance'],
+            sensor_settings['resistors'],
             sensor_settings['bias'])
-            
+
         #Wait for configuration?
         return mdlport
 
