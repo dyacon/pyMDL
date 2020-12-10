@@ -29,7 +29,7 @@ class dbdriver:
         mdlport = self.ports[databearport]
 
         #Only configure GPIO if not port0 (internal/simulated sensors)
-        if databearport is not 'port0':
+        if databearport != 'port0':
             gpioconfig(
                 mdlport,
                 sensor_settings['serial'],
