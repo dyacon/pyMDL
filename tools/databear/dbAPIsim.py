@@ -10,6 +10,25 @@ import json
 
 
 class simAPI:
+
+    #Define dummy sensors
+    sensors = ['tph1','wsd1']
+    measurements = {
+        'tph1':[('T','C'),('rh','%'),('bp','mb')],
+        'wsd1':[('ws','m/s'),('wd','degrees')]
+        }
+    data_tph = {
+        'T':('2020-12-17 11:05',34.33),
+        'rh':('2020-12-17 11:05',15),
+        'bp':('2020-12-17 11:05',800.55)
+    }
+    data_wind = {
+        'ws':('2020-12-17 11:10',22),
+        'wd':('2020-12-17 11:10',150)
+        }
+    data = {'tph1':data_tph,'wsd1':data_wind}
+
+
     def __init__(self):
         #Set up socket and select
         self.udpsocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
@@ -51,7 +70,7 @@ class simAPI:
         #Send a response
         self.udpsocket.sendto(json.dumps(response).encode('utf-8'),address)
 
-    def getResponse(self,cmd,args):
+    def getResponse(self,cmd,arg):
         '''
         Generate response for a particular command and argument
         Commands
@@ -61,13 +80,15 @@ class simAPI:
         if cmd == 'status':
             response = {
                 'status':'running',
-                'sensors':['tph1','wsd1']
+                'sensors':self.sensors,
             }
-        elif cmd == 'getdata':
+        elif cmd == 'getsensor':
             response = {
-                'data':('2020-12-01',55.2),
-                'units':'test'
+                'measurements':self.measurements[arg]
             }
+
+        elif cmd == 'getdata':
+            response = self.data[arg]
         else:
             response = {'error':'Invalid Command'}
         

@@ -1,7 +1,7 @@
 '''
-Display V0
-Displays two pages and switches between them with buttons
--- Use on MDL
+MDL Display App
+Displays status and data from databear.
+- Must test on MDL
 '''
 
 from PIL import Image, ImageDraw, ImageFont
@@ -14,18 +14,148 @@ import time
 import json
 
 #Run parameters
-# How many seconds before we go back to sleep
 sleepSeconds = 10
-mdlfont = ImageFont.load_default()
-
-#Sensor details - eventually pull from SQLite?
-sensors = ['tph1']
-measurements = {'tph1':['T','RH','BP']}
-units = {'tph1':{'T':'C','RH':'%','BP':'mb'}}
+mdlfont = ImageFont.load_default()  #Font to use
 
 #Set up connection to databear
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-sock.settimeout(5)
+sock.settimeout(1)
+HOST = 'localhost'
+PORT = 62000
+
+class system_display:
+    '''
+    A class that describes the system
+    page
+    '''
+    font = mdlfont
+    def __init__(self):
+        self.dbstatus = 'Not running'
+        self.sensors = []
+        self.getstatus()
+
+    def getstatus(self):
+        '''
+        Get status of databear
+        '''
+        cmd = json.dumps({'command':'status'})
+        #Try to connect and send
+        try:
+            sock.sendto(cmd.encode('utf-8'),(HOST,PORT))
+            response = sock.recv(1024)
+        except socket.timeout:
+            return
+
+        #Send command
+        status = json.load(response)
+        self.dbstatus = status['status']
+        #self.sensors = status['sensors']
+        
+    def renderPage(self):
+        '''
+        Output the bytes of the system page
+        '''
+        #Get time
+        dt = datetime.now()
+        timestr = dt.strftime('%H:%M:%S')
+
+        #Create image
+        im = Image.new('1',(128,64),color=0)
+        d = ImageDraw.Draw(im)
+
+        #Display content
+        headerstr = ('MDL-700     {}\n'
+                    'Status\n'.format(timestr))
+
+        statstr = ('DataBear: {}\n'
+                   'Battery:  XXV\n'
+                   'No problems detected'.format(self.dbstatus))
+
+        d.multiline_text(
+                (0,0),
+                headerstr,
+                font=self.font,
+                fill=255,
+                spacing=2)
+
+        d.multiline_text(
+                (0,25),
+                statstr,
+                font=self.font,
+                fill=255,
+                spacing=2)
+        d.line([(5,24),(40,24)],width=1,fill=255)
+
+        return im
+
+class sensor_display:
+    '''
+    A class that describes a sensor display
+    '''
+    def __init__(self,sensorname):
+        self.name = sensorname
+        self.measurements = []
+        self.units = {}
+        self.data = {}
+
+    def getmeta(self):
+        '''
+        Get sensor metadata
+        '''
+        cmd = json.dumps({'getsensor',self.name})
+        meta = json.load(sock.send(cmd))
+        for m in meta['measurements']:
+            self.measurements = m
+            self.units = m
+
+    def getdata(self):
+        '''
+        Get current sensor data
+        '''
+        #To do
+        msg = {'command':'getdata','arg':self.name}
+        sock.sendto(json.dumps(msg).encode('utf-8'),('localhost',62000))
+        response = sock.recv(1024)
+
+        #Parse response
+        respdict = json.loads(response)
+        data = {}
+
+    def renderPage(self):
+        '''
+        To do
+        
+        Returns
+        - PIL image (not bytes) so that function can be unit tested.
+        '''
+        #Create image
+        im = Image.new('1',(128,64),color=0)
+        d = ImageDraw.Draw(im)
+
+        #Display content
+        headstr = '{}      {}'.format(self.name,'test')
+        datastr = ''
+        for m in self.measurements:
+            datastr = datastr + '{}:   {} {}\n'.format(m,'test','test')
+
+        d.text((0,0),headstr,font=mdlfont,fill=255)
+        d.multiline_text(
+                (20,20),
+                datastr,
+                font=mdlfont,
+                fill=255,
+                spacing=2)
+
+        #Draw a rectangle to indicate more data
+        d.polygon([(50,110),(50,120),(55,105)],fill=255)
+
+        return im
+
+# Add any pages we want to switch between here for easy 
+# selecting between later
+class Page(Enum):
+    System = 0
+    Data = 1
 
 def clearDisplay():
     '''
@@ -34,107 +164,14 @@ def clearDisplay():
     im = Image.new('1',(128,64),color=0)
     return im.tobytes()
 
-def getdata(sensorname):
-    '''
-    Get data for a particular sensor from databear
-    Inputs
-    - sensorname
-    Return
-    - data: {'dt':<datetime string>,'measure1':<value>,...}
-    '''
-    msg = {'command':'getdata','arg':sensorname}
-    sock.sendto(json.dumps(msg).encode('utf-8'),('localhost',62000))
-    response = sock.recv(1024)
-
-    #Parse response
-    respdict = json.loads(response)
-    data = {}
-    data['dt'] = respdict['data']['air_temperature'][0][-5:]
-    data['T'] = respdict['data']['air_temperature'][1]
-    data['RH'] = respdict['data']['relative_humidity'][1]
-    data['BP'] = respdict['data']['barometric_pressure'][1]
-
-    return data
-
-
-def displaySys():
-    '''
-    Create a system display
-    Output - Numpy array of image
-    '''
-    #Get time
-    dt = datetime.now()
-    timestr = dt.strftime('%H:%M:%S')
-
-    #Create image
-    im = Image.new('1',(128,64),color=0)
-    d = ImageDraw.Draw(im)
-
-    #Display content
-    headerstr = ('MDL-700     {}\n'
-                 'Status\n'.format(timestr))
-
-    statstr = ('DataBear: Running\n'
-               'Battery:  12.35V\n'
-               'No problems detected')
-
-    d.multiline_text(
-            (5,0),
-            headerstr,
-            font=mdlfont,
-            fill=255,
-            spacing=2)
-
-    d.multiline_text(
-            (5,25),
-            statstr,
-            font=mdlfont,
-            fill=255,
-            spacing=2)
-    d.line([(5,24),(40,24)],width=1,fill=255)
-
-    return im
-
-def displayData(sensorname,dt,measurements,data,units):
-    '''
-    Display sensor data
-    inputs
-        - sensor - sensor name
-        - dt - 'HH:mm:s'
-        - measurements - a list of measurement names
-        - data - dictionary of data for each measurement
-        - unit - dictionary of units for each measurement
-    Returns
-        - PIL image (not bytes) so that function can be unit tested.
-    '''
-    #Create image
-    im = Image.new('1',(128,64),color=0)
-    d = ImageDraw.Draw(im)
-
-    #Display content
-    headstr = '{}      {}'.format(sensorname,dt)
-    datastr = ''
-    for m in measurements:
-        datastr = datastr + '{}:   {} {}\n'.format(m,data[m],units[m])
-
-    d.text((0,0),headstr,font=mdlfont,fill=255)
-    d.multiline_text(
-            (20,20),
-            datastr,
-            font=mdlfont,
-            fill=255,
-            spacing=2)
-
-    #Draw a rectangle to indicate more data
-    d.polygon([(50,110),(50,120),(55,105)],fill=255)
-
-    return im
-
 def run():
     '''
-    Main Loop
-    1. Check page setting: system vs data
-    2. Display page 
+    Initializes pages based on settings
+    sent by databear
+    Main Loop:
+    1. Wait for button to wake from sleep
+    2. Check page setting: system vs sensor data
+    3. Display page 
         - if system, display system page
         - if data, display data page
     3. Check for button press
@@ -142,19 +179,24 @@ def run():
         - switch page setting to system if up arrow
     4. Break loop if Ctl-C
     '''
-    # Add any pages we want to switch between here for easy selecting between later
-    class Page(Enum):
-        System = 0
-        Data = 1
+    #Initialize system display
+    system = system_display()
+    total_pages = 0 #**Hardcoded for testing
 
-    # Initialize currentPage to default page to show
+    #Create a data display for each sensor
+    sensorpages = []
+    for sensor in system.sensors:
+        sensorpage = sensor_display(sensor)
+        sensorpage.getmeta() #Load metadata
+        sensorpages.append(sensorpage)
+
+    #Initial settings:
     currentPage = Page.System
-
-    # Default to sleeping until a button is pressed to wake the display
     sleeping = True
-    # Also initialize last button press time float
     lastButtonTime = 0.0
+    sensorpagenum = 0
 
+    #Initialize button objects
     btnObj = open('/dev/input/event0','rb')
     btntype = {28:'Select',1:'Cancel',103:'Up',108:'Down'}
 
@@ -167,17 +209,9 @@ def run():
         # Generate image but only if awake
         if not sleeping:
             if currentPage == Page.System:
-                img = displaySys()
+                img = system.renderPage()
             elif currentPage == Page.Data:
-                data = getdata(sensors[0])
-                img = displayData(
-                    sensors[0],
-                    data['dt'],
-                    measurements[sensors[0]],
-                    data,
-                    units[sensors[0]]
-                )
-                
+                img = sensorpages[sensorpagenum].renderPage()
         
             with open('/dev/fb0','wb') as f:
                 f.write(img.tobytes())
@@ -185,17 +219,9 @@ def run():
         #Check for input
         event = sel.select(timeout=0)
         if event:
-            print('Event Detected')
-            print(event)
-            
             #Read in button press
             data = btnObj.read(16)
             button = struct.unpack('2IHHI',data)
-            #print(button)
-
-            #Read remaining content from buffer
-            #SYN followed by button release followed by SYN
-            #data = btnObj.read(48)
 
             #Interpret button press
             if (button[3] in [28,1,103,108]) and (button[4]==0):
@@ -203,13 +229,17 @@ def run():
                 sleeping = False
                 lastButtonTime = time.time()
                 if btntype[button[3]]=='Up':
-                    print('Up released')
-                    currentPage = Page.System
+                    #Up button
+                    currentPage = currentPage - 1
                 elif btntype[button[3]]=='Down':
-                    print('Down released')
-                    currentPage = Page.Data
+                    currentPage = currentPage + 1
                 else:
                     pass
+
+                #Check if at first or last page
+                #If at first don't go up, at last circle back to first
+                if (currentPage < 0) or (currentPage > total_pages):
+                    currentPage = 0
     
         # If the last button press was more than sleepSeconds seconds ago, go back to sleep
         if not sleeping and time.time() - lastButtonTime > sleepSeconds:
@@ -226,6 +256,7 @@ def run():
 
 if __name__ == "__main__":
     run()
+
 
 
 
