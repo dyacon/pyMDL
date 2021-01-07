@@ -47,13 +47,13 @@ class system_display:
             return
 
         #Send command
-        status = json.load(response)
+        status = json.loads(response.decode('utf-8'))
         self.dbstatus = status['status']
-        #self.sensors = status['sensors']
+        self.sensors = status['sensors']
         
     def renderPage(self):
         '''
-        Output the bytes of the system page
+        Generate a PIL image of the system status page
         '''
         #Get time
         dt = datetime.now()
@@ -92,38 +92,50 @@ class sensor_display:
     '''
     A class that describes a sensor display
     '''
+    font = mdlfont
     def __init__(self,sensorname):
         self.name = sensorname
         self.measurements = []
         self.units = {}
         self.data = {}
+        self.getmeta()
 
     def getmeta(self):
         '''
         Get sensor metadata
         '''
-        cmd = json.dumps({'getsensor',self.name})
-        meta = json.load(sock.send(cmd))
+        cmd = json.dumps({'command':'getsensor','arg':self.name})
+        #Try to connect and send
+        try:
+            sock.sendto(cmd.encode('utf-8'),(HOST,PORT))
+            response = sock.recv(1024).decode('utf-8')
+        except socket.timeout:
+            return
+
+        #Send command
+        meta = json.loads(response)
         for m in meta['measurements']:
-            self.measurements = m
-            self.units = m
+            self.measurements.append(m[0])
+            self.units[m[0]] = m[1]
 
     def getdata(self):
         '''
         Get current sensor data
         '''
-        #To do
-        msg = {'command':'getdata','arg':self.name}
-        sock.sendto(json.dumps(msg).encode('utf-8'),('localhost',62000))
-        response = sock.recv(1024)
+        cmd = json.dumps({'command':'getdata','arg':self.name})
+        #Try to connect and send
+        try:
+            sock.sendto(cmd.encode('utf-8'),(HOST,PORT))
+            response = sock.recv(1024).decode('utf-8')
+        except socket.timeout:
+            return
 
-        #Parse response
-        respdict = json.loads(response)
-        data = {}
+        #Store current data
+        self.data = json.loads(response)
 
     def renderPage(self):
         '''
-        To do
+        Generate a page for the current data
         
         Returns
         - PIL image (not bytes) so that function can be unit tested.
@@ -132,17 +144,20 @@ class sensor_display:
         im = Image.new('1',(128,64),color=0)
         d = ImageDraw.Draw(im)
 
+        #Extract the measurement time from first measurement
+        mtime = self.data[self.measurements[0]][0]
+
         #Display content
-        headstr = '{}      {}'.format(self.name,'test')
+        headstr = '{}      {}'.format(self.name,mtime)
         datastr = ''
         for m in self.measurements:
-            datastr = datastr + '{}:   {} {}\n'.format(m,'test','test')
+            datastr = datastr + '{}:   {} {}\n'.format(m,self.data[m],self.units[m])
 
-        d.text((0,0),headstr,font=mdlfont,fill=255)
+        d.text((0,0),headstr,font=font,fill=255)
         d.multiline_text(
                 (20,20),
                 datastr,
-                font=mdlfont,
+                font=font,
                 fill=255,
                 spacing=2)
 
@@ -255,7 +270,10 @@ def run():
         time.sleep(0.1)
 
 if __name__ == "__main__":
-    run()
+    #run()
+    #systemdisp = system_display()
+    testsensor = sensor_display('tph1')
+    
 
 
 
