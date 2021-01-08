@@ -148,16 +148,16 @@ class sensor_display:
         mtime = self.data[self.measurements[0]][0]
 
         #Display content
-        headstr = '{}      {}'.format(self.name,mtime)
+        headstr = '{}      {}'.format(self.name,mtime[-5:])
         datastr = ''
         for m in self.measurements:
-            datastr = datastr + '{}:   {} {}\n'.format(m,self.data[m],self.units[m])
+            datastr = datastr + '{}:   {} {}\n'.format(m,self.data[m][1],self.units[m])
 
-        d.text((0,0),headstr,font=font,fill=255)
+        d.text((0,0),headstr,font=self.font,fill=255)
         d.multiline_text(
                 (20,20),
                 datastr,
-                font=font,
+                font=self.font,
                 fill=255,
                 spacing=2)
 
@@ -165,12 +165,6 @@ class sensor_display:
         d.polygon([(50,110),(50,120),(55,105)],fill=255)
 
         return im
-
-# Add any pages we want to switch between here for easy 
-# selecting between later
-class Page(Enum):
-    System = 0
-    Data = 1
 
 def clearDisplay():
     '''
@@ -196,7 +190,7 @@ def run():
     '''
     #Initialize system display
     system = system_display()
-    total_pages = 0 #**Hardcoded for testing
+    maxpageindex = len(system.sensors)
 
     #Create a data display for each sensor
     sensorpages = []
@@ -206,10 +200,9 @@ def run():
         sensorpages.append(sensorpage)
 
     #Initial settings:
-    currentPage = Page.System
+    currentPage = 0
     sleeping = True
     lastButtonTime = 0.0
-    sensorpagenum = 0
 
     #Initialize button objects
     btnObj = open('/dev/input/event0','rb')
@@ -223,10 +216,11 @@ def run():
 
         # Generate image but only if awake
         if not sleeping:
-            if currentPage == Page.System:
+            if currentPage == 0:
                 img = system.renderPage()
-            elif currentPage == Page.Data:
-                img = sensorpages[sensorpagenum].renderPage()
+            else:
+                sensorpages[currentPage].getdata()
+                img = sensorpages[currentPage].renderPage()
         
             with open('/dev/fb0','wb') as f:
                 f.write(img.tobytes())
@@ -253,7 +247,7 @@ def run():
 
                 #Check if at first or last page
                 #If at first don't go up, at last circle back to first
-                if (currentPage < 0) or (currentPage > total_pages):
+                if (currentPage < 0) or (currentPage > maxpageindex):
                     currentPage = 0
     
         # If the last button press was more than sleepSeconds seconds ago, go back to sleep
@@ -266,13 +260,11 @@ def run():
             with open('/dev/fb0','wb') as f:
                 f.write(imbytes)
 
-        #Sleep 0.1s because there is nothing to update
-        time.sleep(0.1)
+        #Sleep 1s between cycles
+        time.sleep(1)
 
 if __name__ == "__main__":
-    #run()
-    #systemdisp = system_display()
-    testsensor = sensor_display('tph1')
+    run()
     
 
 
