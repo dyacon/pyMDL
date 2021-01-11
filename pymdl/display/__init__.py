@@ -219,16 +219,16 @@ def run():
         if event:
             lastButtonTime = time.time()
             
-            #Wake up if sleeping
-            if sleeping:
+            #Read in button type
+            data = btnObj.read(16)
+            button = struct.unpack('2IHHI',data)
+            
+            #Wake up on button release if sleeping
+            if sleeping and btntype[button[3]]=='Up':
                 sleeping=False
                 #Always start at the system page
                 currentPage=0
             else:
-                #Read in button type
-                data = btnObj.read(16)
-                button = struct.unpack('2IHHI',data)
-
                 #Interpret button press
                 if (button[3] in [28,1,103,108]) and (button[4]==0):
                     # Any key release turns off sleeping and sets last event time
