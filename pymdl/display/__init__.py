@@ -231,8 +231,6 @@ def run():
             else:
                 #Interpret button press
                 if (button[3] in [28,1,103,108]) and (button[4]==0):
-                    # Any key release turns off sleeping and sets last event time
-                    lastButtonTime = time.time()
                     if btntype[button[3]]=='Up':
                         #Up button
                         currentPage = currentPage - 1
