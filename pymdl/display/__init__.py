@@ -214,45 +214,54 @@ def run():
 
     while True:
 
-        # Generate image but only if awake
-        if not sleeping:
-            if currentPage == 0:
-                img = system.renderPage()
-            else:
-                sensorpages[currentPage].getdata()
-                img = sensorpages[currentPage].renderPage()
-        
-            with open('/dev/fb0','wb') as f:
-                f.write(img.tobytes())
-
         #Check for input
         event = sel.select(timeout=0)
         if event:
-            #Read in button press
-            data = btnObj.read(16)
-            button = struct.unpack('2IHHI',data)
 
-            #Interpret button press
-            if (button[3] in [28,1,103,108]) and (button[4]==0):
-                # Any key release turns off sleeping and sets last event time
-                sleeping = False
-                lastButtonTime = time.time()
-                if btntype[button[3]]=='Up':
-                    #Up button
-                    currentPage = currentPage - 1
-                elif btntype[button[3]]=='Down':
-                    currentPage = currentPage + 1
-                else:
-                    pass
+            #Wake up if sleeping
+            if sleeping:
+                sleeping=False
+                #Always start at the system page
+                currentPage=0
+            else:
+                #Read in button type
+                data = btnObj.read(16)
+                button = struct.unpack('2IHHI',data)
 
+                #Interpret button press
+                if (button[3] in [28,1,103,108]) and (button[4]==0):
+                    # Any key release turns off sleeping and sets last event time
+                    lastButtonTime = time.time()
+                    if btntype[button[3]]=='Up':
+                        #Up button
+                        currentPage = currentPage - 1
+                    elif btntype[button[3]]=='Down':
+                        currentPage = currentPage + 1
+                    else:
+                        pass
+                
                 #Check if at first or last page
                 #If at first don't go up, at last circle back to first
                 if (currentPage < 0) or (currentPage > maxpageindex):
                     currentPage = 0
-    
-        # If the last button press was more than sleepSeconds seconds ago, go back to sleep
-        if not sleeping and time.time() - lastButtonTime > sleepSeconds:
-            print('No button press for over ' + str(sleepSeconds) + ' seconds, clearing display')
+
+        #Generate image if awake
+        if not sleeping:
+            if currentPage == 0:
+                img = system.renderPage()
+            else:
+                sensorpages[currentPage-1].getdata()
+                img = sensorpages[currentPage-1].renderPage()
+        
+            with open('/dev/fb0','wb') as f:
+                f.write(img.tobytes())
+            
+            
+        # If the last button press was more than sleepSeconds seconds ago,
+        # go back to sleep
+        if not sleeping and (time.time() - lastButtonTime) > sleepSeconds:
+            print('No button press for over ' + str(sleepSeconds) + 
+                ' seconds, clearing display')
             sleeping = True
 
             imbytes = clearDisplay()
