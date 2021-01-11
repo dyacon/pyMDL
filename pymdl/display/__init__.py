@@ -217,7 +217,8 @@ def run():
         #Check for input
         event = sel.select(timeout=0)
         if event:
-
+            lastButtonTime = time.time()
+            
             #Wake up if sleeping
             if sleeping:
                 sleeping=False
@@ -255,7 +256,6 @@ def run():
         
             with open('/dev/fb0','wb') as f:
                 f.write(img.tobytes())
-            
             
         # If the last button press was more than sleepSeconds seconds ago,
         # go back to sleep
