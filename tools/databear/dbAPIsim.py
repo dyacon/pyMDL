@@ -27,6 +27,7 @@ class simAPI:
         'wd':('2020-12-17 11:10',150)
         }
     data = {'tph1':data_tph,'wsd1':data_wind}
+    runflag = True
 
 
     def __init__(self):
@@ -42,7 +43,7 @@ class simAPI:
         '''
         Listen on UDP socket
         '''
-        while True:
+        while self.runflag:
             try:
                 #Check for UDP comm
                 event = self.sel.select(timeout=1)
@@ -89,6 +90,9 @@ class simAPI:
 
         elif cmd == 'getdata':
             response = self.data[arg]
+        elif cmd == 'shutdown':
+            response = {'response':'OK'}
+            self.runflag = False
         else:
             response = {'error':'Invalid Command'}
         
