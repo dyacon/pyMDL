@@ -226,29 +226,27 @@ def run():
 
             #Detect if button release so actions don't occur on push
             if (button[3] in [28,1,103,108]) and (button[4]==0):
-                btnrelease = True
+                #Wake up on button release if sleeping
+                if sleeping:
+                    sleeping=False
+                    #Always start at the system page
+                    currentPage=0
+                else:
+                    #Interpret button press
+                    if btnrelease:
+                        if btntype[button[3]]=='Up':
+                            #Up button
+                            currentPage = currentPage - 1
+                        elif btntype[button[3]]=='Down':
+                            currentPage = currentPage + 1
+                        else:
+                            pass
             
-            #Wake up on button release if sleeping
-            if sleeping and btnrelease:
-                sleeping=False
-                #Always start at the system page
-                currentPage=0
-            else:
-                #Interpret button press
-                if btnrelease:
-                    if btntype[button[3]]=='Up':
-                        #Up button
-                        currentPage = currentPage - 1
-                    elif btntype[button[3]]=='Down':
-                        currentPage = currentPage + 1
-                    else:
-                        pass
-                
                 #Check if at first or last page
                 #If at first don't go up, at last circle back to first
                 if (currentPage < 0) or (currentPage > maxpageindex):
                     currentPage = 0
-
+            
         #Generate image if awake
         if not sleeping:
             if currentPage == 0:
