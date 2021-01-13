@@ -217,6 +217,7 @@ def run():
         #Check for input
         event = sel.select(timeout=0)
         if event:
+            print('event detected')
             lastButtonTime = time.time()
             btnrelease = False
             
@@ -226,26 +227,31 @@ def run():
 
             #Detect if button release so actions don't occur on push
             if (button[3] in [28,1,103,108]) and (button[4]==0):
+                print('button release')      
                 #Wake up on button release if sleeping
                 if sleeping:
+                    print('wake up')
                     sleeping=False
                     #Always start at the system page
                     currentPage=0
                 else:
                     #Interpret button press
-                    if btnrelease:
-                        if btntype[button[3]]=='Up':
-                            #Up button
-                            currentPage = currentPage - 1
-                        elif btntype[button[3]]=='Down':
-                            currentPage = currentPage + 1
-                        else:
-                            pass
+                    if btntype[button[3]]=='Up':
+                        #Up button
+                        currentPage = currentPage - 1
+                        print('Up: page = {}'.format(currentPage))
+                    elif btntype[button[3]]=='Down':
+                        currentPage = currentPage + 1
+                        print('Down: page = {}'.format(currentPage))
+                    else:
+                        pass
             
                 #Check if at first or last page
                 #If at first don't go up, at last circle back to first
                 if (currentPage < 0) or (currentPage > maxpageindex):
+                    print('reset currentpage')
                     currentPage = 0
+
             
         #Generate image if awake
         if not sleeping:
