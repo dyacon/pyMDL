@@ -218,19 +218,24 @@ def run():
         event = sel.select(timeout=0)
         if event:
             lastButtonTime = time.time()
+            btnrelease = False
             
             #Read in button type
             data = btnObj.read(16)
             button = struct.unpack('2IHHI',data)
+
+            #Detect if button release so actions don't occur on push
+            if (button[3] in [28,1,103,108]) and (button[4]==0):
+                btnrelease = True
             
             #Wake up on button release if sleeping
-            if sleeping and btntype[button[3]]=='Up':
+            if sleeping and btnrelease:
                 sleeping=False
                 #Always start at the system page
                 currentPage=0
             else:
                 #Interpret button press
-                if (button[3] in [28,1,103,108]) and (button[4]==0):
+                if btnrelease:
                     if btntype[button[3]]=='Up':
                         #Up button
                         currentPage = currentPage - 1
