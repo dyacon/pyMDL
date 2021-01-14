@@ -219,11 +219,16 @@ def run():
         if event:
             print('event detected')
             lastButtonTime = time.time()
-            btnrelease = False
             
             #Read in button type
             data = btnObj.read(16)
             button = struct.unpack('2IHHI',data)
+            print(button)
+
+            #Read in SYN message?
+            data = btnObj.read(16)
+            syn = struct.unpack('2IHHI',data)
+            print(syn)
 
             #Detect if button release so actions don't occur on push
             if (button[3] in [28,1,103,108]) and (button[4]==0):
