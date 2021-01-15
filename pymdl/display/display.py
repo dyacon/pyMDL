@@ -15,7 +15,7 @@ import json
 
 #Run parameters
 sleepSeconds = 10
-mdlfont = ImageFont.load_default()  #Font to use
+mdlfont = ImageFont.load('fonts/cherry-11-r.pil')
 
 #Set up connection to databear
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
@@ -30,7 +30,7 @@ class system_display:
     '''
     font = mdlfont
     def __init__(self):
-        self.dbstatus = 'Not running'
+        self.dbstatus = 'DataBear Inactive'
         self.sensors = []
         self.getstatus()
 
@@ -64,12 +64,11 @@ class system_display:
         d = ImageDraw.Draw(im)
 
         #Display content
-        headerstr = ('MDL-700     {}\n'
-                    'Status\n'.format(timestr))
+        headerstr = ('MDL-700     {}\n'.format(timestr))
 
-        statstr = ('DataBear: {}\n'
-                   'Battery:  XXV\n'
-                   'No problems detected'.format(self.dbstatus))
+        statstr = ('IP: 225.252.255.255\n'
+                   'Status:\n'
+                   '{}\n'.format(self.dbstatus))
 
         d.multiline_text(
                 (0,0),
