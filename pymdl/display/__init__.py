@@ -230,8 +230,8 @@ def run():
             syn = struct.unpack('2IHHI',data)
             print(syn)
 
-            #Detect if button release so actions don't occur on push
-            if (button[3] in [28,1,103,108]) and (button[4]==0):
+            #Interpret button press, respond to push not release
+            if (button[3] in [28,1,103,108]) and (button[4]==1):
                 print('button release')      
                 #Wake up on button release if sleeping
                 if sleeping:
