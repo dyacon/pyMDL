@@ -195,7 +195,6 @@ def run():
     sensorpages = []
     for sensor in system.sensors:
         sensorpage = sensor_display(sensor)
-        sensorpage.getmeta() #Load metadata
         sensorpages.append(sensorpage)
 
     #Initial settings:
