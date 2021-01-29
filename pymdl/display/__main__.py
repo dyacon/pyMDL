@@ -7,6 +7,7 @@ Displays status and data from databear.
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 from enum import Enum
+import importlib.resources as pkg_resource
 import struct
 import selectors
 import socket
@@ -15,7 +16,8 @@ import json
 
 #Run parameters
 sleepSeconds = 10
-mdlfont = ImageFont.load('fonts/cherry-11-r.pil')
+with pkg_resource.path('pymdl.fonts','cherry-11-r.pil') as fntpath:
+    mdlfont = ImageFont.load(fntpath.name)
 
 #Set up connection to databear
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
