@@ -14,22 +14,22 @@ class mdlpower(sensor.Sensor):
             'volts2','current2','power2', 'energy2',
             'volts3','current3','power3', 'energy3']
     measurement_description = {
-        'volts0':'',
-        'volts1':'',
-        'volts2':'',
-        'volts3':'',
-        'current0':'',
-        'current1':'',
-        'current2':'',
-        'current3':'',
-        'power0':'',
-        'power1':'',
-        'power2':'',
-        'power3':'',
-        'energy0':'',
-        'energy1':'',
-        'energy2':'',
-        'energy3':''
+        'volts0':'5V Voltage',
+        'volts1':'12V Voltage',
+        'volts2':'3X3_INT Voltage',
+        'volts3':'3X3_EXT Voltage',
+        'current0':'5V Current',
+        'current1':'12V Current',
+        'current2':'3X3_INT Current',
+        'current3':'3X3_EXT Current',
+        'power0':'5V Power',
+        'power1':'12V Power',
+        'power2':'3X3_INT Power',
+        'power3':'3X3_EXT Power',
+        'energy0':'5V Energy',
+        'energy1':'12V Energy',
+        'energy2':'3X3_INT Energy',
+        'energy3':'3X3_EXT Energy'
     } 
     units = {
         'volts0':'v',
