@@ -17,7 +17,7 @@ import json
 #Run parameters
 sleepSeconds = 10
 with pkg_resource.path('pymdl.fonts','cherry-11-r.pil') as fntpath:
-    mdlfont = ImageFont.load(fntpath.name)
+    mdlfont = ImageFont.load(fntpath)
 
 #Set up connection to databear
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)

@@ -21,7 +21,7 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'mdldisplay=pymdl.display:run'
+            'mdldisplay=pymdl.display.__main__:run'
         ]
     }
 )
