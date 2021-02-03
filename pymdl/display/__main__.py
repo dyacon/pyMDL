@@ -146,13 +146,23 @@ class sensor_display:
         d = ImageDraw.Draw(im)
 
         #Extract the measurement time from first measurement
-        mtime = self.data[self.measurements[0]][0]
+        # print("self.measurements: {}".format(json.dumps(self.measurements)))
+        # print("self.data: {}".format(json.dumps(self.data)))
+        # print("self.units: {}".format(json.dumps(self.units)))
+        if self.data[self.measurements[0]]:
+            mtime = self.data[self.measurements[0]][0]
+        else:
+            mtime = "2020-03-03 03:03"
 
         #Display content
         headstr = '{}      {}'.format(self.name,mtime[-5:])
         datastr = ''
         for m in self.measurements:
-            datastr = datastr + '{}:   {} {}\n'.format(m,self.data[m][1],self.units[m])
+            # print("Adding measurement {}".format(m))
+            if m in self.data and self.data[m] and m in self.units:
+                datastr = datastr + '{}:   {} {}\n'.format(m,self.data[m][1],self.units[m])
+            else:
+                datastr = datastr + '{}: missing data'.format(m)
 
         d.text((0,0),headstr,font=self.font,fill=255)
         d.multiline_text(
@@ -192,6 +202,7 @@ def run():
     #Initialize system display
     system = system_display()
     maxpageindex = len(system.sensors)
+    print('maxpageindex is ' + str(maxpageindex))
 
     #Create a data display for each sensor
     sensorpages = []
