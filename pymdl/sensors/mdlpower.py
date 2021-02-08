@@ -9,46 +9,27 @@ from databear.errors import MeasureError, SensorConfigError
 from databear.sensors import sensor
 
 class mdlpower(sensor.Sensor):
-    measurements = ['volts0','current0','power0', 'energy0',
-            'volts1','current1','power1', 'energy1',
-            'volts2','current2','power2', 'energy2',
-            'volts3','current3','power3', 'energy3']
-    measurement_description = {
-        'volts0':'5V Voltage',
-        'volts1':'12V Voltage',
-        'volts2':'3X3_INT Voltage',
-        'volts3':'3X3_EXT Voltage',
-        'current0':'5V Current',
-        'current1':'12V Current',
-        'current2':'3X3_INT Current',
-        'current3':'3X3_EXT Current',
-        'power0':'5V Power',
-        'power1':'12V Power',
-        'power2':'3X3_INT Power',
-        'power3':'3X3_EXT Power',
-        'energy0':'5V Energy',
-        'energy1':'12V Energy',
-        'energy2':'3X3_INT Energy',
-        'energy3':'3X3_EXT Energy'
-    } 
-    units = {
-        'volts0':'v',
-        'volts1':'v',
-        'volts2':'v',
-        'volts3':'v',
-        'current0':'mA',
-        'current1':'mA',
-        'current2':'mA',
-        'current3':'mA',
-        'power0':'mW',
-        'power1':'mW',
-        'power2':'mW',
-        'power3':'mW',
-        'energy0':'',
-        'energy1':'',
-        'energy2':'',
-        'energy3':''
-    }
+    points = [ '3x3Ext', '5V', '12V', '3x3Int']
+    measurements = []
+    measurement_description = {}
+    units = {}
+    
+    for i in range(4): 
+        point = points[i]
+        measurements.append(point + "Volts")
+        measurements.append(point + "Current")
+        measurements.append(point + "Power")
+        measurements.append(point + "Energy")
+
+        measurement_description[point + "Volts"] = point + " Voltage"
+        measurement_description[point + "Current"] = point + " Current"
+        measurement_description[point + "Power"] = point + " Power"
+        measurement_description[point + "Energy"] = point + " Energy"
+
+        units[point + "Volts"] = "v"
+        units[point + "Current"] = "mA"
+        units[point + "Power"] = "mW"
+        units[point + "Energy"] = ""
 
     def __init__(self,name,sn,address):
         '''
@@ -77,7 +58,7 @@ class mdlpower(sensor.Sensor):
 
         # Measure the data from the /sys device
 
-        for i in range(3):
+        for i in range(4):
             # string representation of i
             istring = str(i)
 
@@ -97,8 +78,8 @@ class mdlpower(sensor.Sensor):
             power = (padc * powerScale) / 1000
             energy = (eadc * energyScale)
 
-            self.data['volts' + istring].append((dt, volts))
-            self.data['current' + istring].append((dt, current))
-            self.data['power' + istring].append((dt, power))
-            self.data['energy' + istring].append((dt, energy))
+            self.data[self.points[i] + "Volts"].append((dt, volts))
+            self.data[self.points[i] + "Current"].append((dt, current))
+            self.data[self.points[i] + "Power"].append((dt, power))
+            self.data[self.points[i] + "Energy"].append((dt, energy))
 
