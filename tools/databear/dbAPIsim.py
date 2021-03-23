@@ -14,13 +14,17 @@ class simAPI:
     #Define dummy sensors
     sensors = ['tph1','wsd1']
     measurements = {
-        'tph1':[('T','C'),('rh','%'),('bp','mb')],
+        'tph1':[
+            ('air_temperature','C'),
+            ('relative_humidity','%'),
+            ('barometric_pressure','mb')
+            ],
         'wsd1':[('ws','m/s'),('wd','degrees')]
         }
     data_tph = {
-        'T':('2020-12-17 11:05',34.33),
-        'rh':('2020-12-17 11:05',15),
-        'bp':('2020-12-17 11:05',800.55)
+        'air_temperature':('2020-12-17 11:05',34.33),
+        'relative_humidity':('2020-12-17 11:05',15),
+        'barometric_pressure':('2020-12-17 11:05',800.55)
     }
     data_wind = {
         'ws':('2020-12-17 11:10',22),

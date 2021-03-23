@@ -15,7 +15,7 @@ import time
 import json
 
 #Run parameters
-sleepSeconds = 10
+sleepSeconds = 15
 with pkg_resource.path('pymdl.fonts','cherry-11-r.pil') as fntpath:
     mdlfont = ImageFont.load(fntpath)
 
@@ -152,28 +152,28 @@ class sensor_display:
         if self.data[self.measurements[0]]:
             mtime = self.data[self.measurements[0]][0]
         else:
-            mtime = "2020-03-03 03:03"
+            mtime = "00:00"
 
         #Display content
-        headstr = '{}      {}'.format(self.name,mtime[-5:])
+        headstr = '{}     {}'.format(self.name[:8],mtime[-5:])
         datastr = ''
         for m in self.measurements:
             # print("Adding measurement {}".format(m))
             if m in self.data and self.data[m] and m in self.units:
-                datastr = datastr + '{}:   {} {}\n'.format(m,self.data[m][1],self.units[m])
+                datastr = datastr + '{}: {:.2f} {}\n'.format(m[:5],self.data[m][1],self.units[m])
             else:
-                datastr = datastr + '{}: missing data'.format(m)
+                datastr = datastr + '{}: missing data'.format(m[:5])
 
         d.text((0,0),headstr,font=self.font,fill=255)
         d.multiline_text(
-                (20,20),
+                (10,20),
                 datastr,
                 font=self.font,
                 fill=255,
                 spacing=2)
 
         #Draw a rectangle to indicate more data
-        d.polygon([(50,110),(50,120),(55,105)],fill=255)
+        d.polygon([(115,50),(125,50),(120,55)],fill=255)
 
         return im
 
