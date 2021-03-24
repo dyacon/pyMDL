@@ -35,7 +35,7 @@ class system_display:
     def __init__(self):
         self.dbstatus = 'DataBear Inactive'
         self.sensors = []
-        self.ip = self.getipadd()
+        self.ip = 'Not connected'
         self.getstatus()
 
     def getipadd(self):
@@ -45,17 +45,17 @@ class system_display:
         '''
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            ipadd = socket.inet_ntoa(
+            self.ip = socket.inet_ntoa(
                 fcntl.ioctl(
                     s.fileno(),
                     0x8915,  # SIOCGIFADDR
                     struct.pack('256s', bytes('eth0','utf-8'))
                 )[20:24]
             )
+        except:
+            self.ip = 'Not Connected'
         finally:
             s.close()
-
-        return ipadd
     
     def getstatus(self):
         '''
@@ -270,6 +270,8 @@ def run():
                     sleeping=False
                     #Always start at the system page
                     currentPage=0
+                    #Update IP address
+                    system.getipadd()
                 else:
                     #Interpret button press
                     if btntype[button[3]]=='Up':
