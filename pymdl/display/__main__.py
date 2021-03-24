@@ -9,6 +9,7 @@ from datetime import datetime
 from enum import Enum
 import importlib.resources as pkg_resource
 import struct
+import fcntl #Unix utility
 import selectors
 import socket
 import time
@@ -34,8 +35,28 @@ class system_display:
     def __init__(self):
         self.dbstatus = 'DataBear Inactive'
         self.sensors = []
+        self.ip = self.getipadd()
         self.getstatus()
 
+    def getipadd(self):
+        '''
+        Get IP address for 'eth0'
+        ** Uses unix specific code
+        '''
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            ipadd = socket.inet_ntoa(
+                fcntl.ioctl(
+                    s.fileno(),
+                    0x8915,  # SIOCGIFADDR
+                    struct.pack('256s', bytes('eth0','utf-8'))
+                )[20:24]
+            )
+        finally:
+            s.close()
+
+        return ipadd
+    
     def getstatus(self):
         '''
         Get status of databear
@@ -68,9 +89,9 @@ class system_display:
         #Display content
         headerstr = ('MDL-700     {}\n'.format(timestr))
 
-        statstr = ('IP: 225.252.255.255\n'
+        statstr = ('IP: {}\n'
                    'Status:\n'
-                   '{}\n'.format(self.dbstatus))
+                   '{}\n'.format(self.ip,self.dbstatus))
 
         d.multiline_text(
                 (0,0),
@@ -85,7 +106,6 @@ class system_display:
                 font=self.font,
                 fill=255,
                 spacing=2)
-        d.line([(5,24),(40,24)],width=1,fill=255)
 
         return im
 
