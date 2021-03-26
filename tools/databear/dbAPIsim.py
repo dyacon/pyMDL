@@ -19,7 +19,14 @@ class simAPI:
             ('relative_humidity','%'),
             ('barometric_pressure','mb')
             ],
-        'wsd1':[('ws','m/s'),('wd','degrees')]
+        'wsd1':[
+            ('speed','m/s'),
+            ('direction','degrees'),
+            ('speed_2m','m/s'),
+            ('direction_2m','degrees'),
+            ('speed_10m','m/s'),
+            ('direction_10m','degrees')
+            ]
         }
     data_tph = {
         'air_temperature':('2020-12-17 11:05',34.33),
@@ -27,8 +34,12 @@ class simAPI:
         'barometric_pressure':('2020-12-17 11:05',800.55)
     }
     data_wind = {
-        'ws':('2020-12-17 11:10',22),
-        'wd':('2020-12-17 11:10',150)
+        'speed':('2020-12-17 11:10',22),
+        'direction':('2020-12-17 11:10',150),
+        'speed_2m':('2020-12-17 11:10',22),
+        'direction_2m':('2020-12-17 11:10',150),
+        'speed_10m':('2020-12-17 11:10',22),
+        'direction_10m':('2020-12-17 11:10',150)
         }
     data = {'tph1':data_tph,'wsd1':data_wind}
     runflag = True

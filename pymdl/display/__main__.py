@@ -6,6 +6,7 @@ Displays status and data from databear.
 
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
+from math import ceil
 from enum import Enum
 import importlib.resources as pkg_resource
 import struct
@@ -117,13 +118,15 @@ class sensor_display:
     def __init__(self,sensorname):
         self.name = sensorname
         self.measurements = []
+        self.display_measurements = []
+        self.measurement_group = 0 #Tracks what group of measurements are displayed
         self.units = {}
         self.data = {}
         self.getmeta()
 
     def getmeta(self):
         '''
-        Get sensor metadata
+        Get sensor metadata: measurements and units
         '''
         cmd = json.dumps({'command':'getsensor','arg':self.name})
         #Try to connect and send
@@ -133,11 +136,14 @@ class sensor_display:
         except socket.timeout:
             return
 
-        #Send command
+        #Send command to API
         meta = json.loads(response)
         for m in meta['measurements']:
             self.measurements.append(m[0])
             self.units[m[0]] = m[1]
+
+        #Set display_measurements
+        self.display_measurements = self.measurements[0:3]
 
     def getdata(self):
         '''
@@ -154,6 +160,31 @@ class sensor_display:
         #Store current data
         self.data = json.loads(response)
 
+    def switch_measurements(self,direction):
+        '''
+        Change which measurements are displayed when page is rendered.
+        Reset by setting self.measurement_group=0
+        input:
+            direction = 'up','down'
+
+        Returns:
+            True/False if display_measurements changes to a new set of
+            measurements. This won't occur if no other measurements are available.
+        '''
+        inc = {'up':-1,'down':1}
+        new_group = self.measurement_group + inc[direction]
+
+        #Check to see if new_group an actual group
+        if (new_group < 0) or (new_group > (ceil(len(self.measurements)/3)-1)):
+            return False
+
+        self.measurement_group = new_group
+        mstart = new_group * 3
+        mend = mstart + 3
+        self.display_measurements = self.measurements[mstart:mend]
+
+        return True
+    
     def renderPage(self):
         '''
         Generate a page for the current data
@@ -177,7 +208,7 @@ class sensor_display:
         #Display content
         headstr = '{}     {}'.format(self.name[:8],mtime[-5:])
         datastr = ''
-        for m in self.measurements:
+        for m in self.display_measurements:
             # print("Adding measurement {}".format(m))
             if m in self.data and self.data[m] and m in self.units:
                 datastr = datastr + '{}: {:.2f} {}\n'.format(m[:5],self.data[m][1],self.units[m])
@@ -221,8 +252,8 @@ def run():
     '''
     #Initialize system display
     system = system_display()
+    system.getipadd()  #Get current IP address for MDL
     maxpageindex = len(system.sensors)
-    print('maxpageindex is ' + str(maxpageindex))
 
     #Create a data display for each sensor
     sensorpages = []
@@ -232,8 +263,8 @@ def run():
 
     #Initial settings:
     currentPage = 0
-    sleeping = True
-    lastButtonTime = 0.0
+    sleeping = False
+    lastButtonTime = time.time()
 
     #Initialize button objects
     btnObj = open('/dev/input/event0','rb')
@@ -248,22 +279,18 @@ def run():
         #Check for input
         event = sel.select(timeout=0)
         if event:
-            print('event detected')
             lastButtonTime = time.time()
             
             #Read in button type
             data = btnObj.read(16)
             button = struct.unpack('2IHHI',data)
-            print(button)
 
             #Read in SYN message?
             data = btnObj.read(16)
             syn = struct.unpack('2IHHI',data)
-            print(syn)
 
             #Interpret button press, respond to push not release
-            if (button[3] in [28,1,103,108]) and (button[4]==1):
-                print('button release')      
+            if (button[3] in [28,1,103,108]) and (button[4]==1):     
                 #Wake up on button release if sleeping
                 if sleeping:
                     print('wake up')
@@ -275,20 +302,34 @@ def run():
                 else:
                     #Interpret button press
                     if btntype[button[3]]=='Up':
-                        #Up button
-                        currentPage = currentPage - 1
-                        print('Up: page = {}'.format(currentPage))
+                        if currentPage != 0:
+                            #Current page is "sensor", Switch measurement group
+                            switched = sensorpages[currentPage - 1].switch_measurements('up')
+                            if not switched:
+                                #No measurements to change, change page
+                                currentPage = currentPage - 1
+                        else:
+                            currentPage = currentPage - 1
+
                     elif btntype[button[3]]=='Down':
-                        currentPage = currentPage + 1
-                        print('Down: page = {}'.format(currentPage))
+                        if currentPage != 0:
+                            #Current page is "sensor", Switch measurement group
+                            switched = sensorpages[currentPage - 1].switch_measurements('down')
+                            if not switched:
+                                #No measurements to change, change page
+                                currentPage = currentPage + 1
+                        else:
+                            currentPage = currentPage + 1
+
                     else:
                         pass
             
                 #Check if at first or last page
                 #If at first don't go up, at last circle back to first
                 if (currentPage < 0) or (currentPage > maxpageindex):
-                    print('reset currentpage')
                     currentPage = 0
+                    for sensorpage in sensorpages:
+                        sensorpage.measurement_group = 0
 
             
         #Generate image if awake
