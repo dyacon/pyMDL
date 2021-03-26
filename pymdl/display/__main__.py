@@ -160,6 +160,13 @@ class sensor_display:
         #Store current data
         self.data = json.loads(response)
 
+    def reset_measurements(self):
+        '''
+        Set measurement_group and display_measurements back to 0
+        '''
+        self.measurement_group = 0
+        self.display_measurements = self.measurements[0:3]
+
     def switch_measurements(self,direction):
         '''
         Change which measurements are displayed when page is rendered.
@@ -329,7 +336,7 @@ def run():
                 if (currentPage < 0) or (currentPage > maxpageindex):
                     currentPage = 0
                     for sensorpage in sensorpages:
-                        sensorpage.measurement_group = 0
+                        sensorpage.reset_measurements()
 
             
         #Generate image if awake
@@ -349,11 +356,14 @@ def run():
             print('No button press for over ' + str(sleepSeconds) + 
                 ' seconds, clearing display')
             sleeping = True
-
             imbytes = clearDisplay()
 
             with open('/dev/fb0','wb') as f:
                 f.write(imbytes)
+
+            #Reset sensor groups
+            for sensorpage in sensorpages:
+                sensorpage.reset_measurements()
 
         #Sleep 1s between cycles
         time.sleep(1)
