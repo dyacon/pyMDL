@@ -8,7 +8,7 @@ import time
 from databear.errors import MeasureError, SensorConfigError
 from databear.sensors import sensor
 
-class mdlpower(sensor.Sensor):
+class dbsensor(sensor.Sensor):
     points = [ '3x3Ext', '5V', '12V', '3x3Int']
     measurements = []
     measurement_description = {}
